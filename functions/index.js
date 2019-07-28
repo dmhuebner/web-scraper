@@ -18,18 +18,16 @@ const scrapeMetatags = (text) => {
             $(`meta[property="twitter:${name}"]`).attr('content');
         };
 
-        const scrapedData = {
+        return {
             url,
             title: $('title').first().text(),
             favicon: $('link[rel="shortcut icon"]').attr('href'),
             description: getMetatag('description'),
             author: getMetatag('author')
         };
-
-        console.log(scrapedData);
-
-        return scrapedData;
     });
+
+    return requests;
 };
 
 const scrapeImages = async (loginUrl, username, password) => {
@@ -38,12 +36,14 @@ const scrapeImages = async (loginUrl, username, password) => {
 
     await page.goto(loginUrl);
 
-    await page.screenshot({path: '1.png'});
+    await page.waitFor(1000);
 
-    await page.type('[name=username]', username);
-    await page.type('[name=password]', password);
+    await page.screenshot({path: 'screenshots/1.png'});
 
-    await page.screenshot({path: '2.png'});
+    await page.type('input[name=username]', username);
+    await page.type('input[name=password]', password);
+
+    await page.screenshot({path: 'screenshots/2.png'});
 
     await page.click('[type=submit]');
 
@@ -53,7 +53,7 @@ const scrapeImages = async (loginUrl, username, password) => {
 
     await page.waitForSelector('img', {visible: true});
 
-    await page.screenshot({path: '3.png'});
+    await page.screenshot({path: 'screenshots/3.png'});
 
     // Execute code in the DOM - scrape
 
@@ -66,12 +66,16 @@ const scrapeImages = async (loginUrl, username, password) => {
     });
 
     await browser.close();
+
+    return data
 };
 
 // Test
-const execute = async () => {
+const tryIt = async () => {
     const result = await scrapeMetatags('https://twitter.com/');
+    const scrapedImages = await scrapeImages('https://www.instagram.com/accounts/login', 'username', 'password');
     console.log(result);
+    console.log(scrapedImages);
 };
 
-execute();
+tryIt();
